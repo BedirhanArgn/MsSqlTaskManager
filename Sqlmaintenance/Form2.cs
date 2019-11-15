@@ -18,10 +18,7 @@ namespace Sqlmaintenance
         SqlConnection cn;
         SqlCommand cmd;
         SqlCommand cmd3;
-        SqlDataReader reader;
-        String connecion;
         int kontrolgorev=0;
-        int kontrolsp;
         int sayac2 = 0;
         string xmlconnectionsorgu;
         string xmlconnectiongorev;
@@ -34,27 +31,14 @@ namespace Sqlmaintenance
         }
         private void Form2_Load(object sender, EventArgs e)
         {
-            //sayac = 1;
-            //XmlOku(1);
-            // GorevCalistir();
             panel1.Dock = DockStyle.Fill;
         }
-        //public void GorevCalistir() //Sql task manager
-        //{
-        //    sayac = 2;
-        //    XmlOku(2);
-   
-        //    cmd = new SqlCommand(connecion);
-        //    cmd.Connection = cn;
-        //    //cmd.CommandText=("select * from SqlTask_Clients");               
-        //}
         public void XmlOku(int hanginode)
         {
             XmlDocument doc = new XmlDocument();
             doc.Load(x.connectionstring.ToString());
             XmlElement root = doc.DocumentElement;
             XmlNodeList nodes = root.SelectNodes("//appSettings/add");
-
             foreach (XmlNode node in nodes)
             {
                 sayac2++;
@@ -79,9 +63,11 @@ namespace Sqlmaintenance
             {
                 cmd.Cancel();
               dataGridViewGorevY.Visible = false;
+            }      
+            if(timer3.Enabled)
+            {
+                timer3.Stop();
             }
-            
-       
             XmlOku(1);
             cn = new SqlConnection(xmlconnectionsorgu);
             timer1.Start();
@@ -112,27 +98,36 @@ namespace Sqlmaintenance
             cmd3.Cancel();
              dataGridViewSorguG.Visible = false;
             }
-            XmlOku(2);
-            cn = new SqlConnection(xmlconnectiongorev);
-            cmd = new SqlCommand("sp_runsp", cn);    
-            cmd.CommandType = CommandType.StoredProcedure;
-            SqlCommand cmd2 = new SqlCommand("select * from SqlTask_Clients",cn);
-            SqlDataAdapter dr = new SqlDataAdapter(cmd);
-            SqlDataAdapter dr2 = new SqlDataAdapter(cmd2);
-            DataSet ds2 = new DataSet();
-            dr2.Fill(ds2, "SqlTask_Clients");
             dataGridViewGorevY = new DataGridView();
             dataGridViewGorevY.Dock = DockStyle.Fill;
             dataGridViewGorevY.BackgroundColor = Color.White;
             dataGridViewGorevY.BorderStyle = BorderStyle.None;
-            dataGridViewGorevY.DataSource = ds2.Tables["SqlTask_Clients"];
-            panel1.Controls.Add(dataGridViewGorevY);
+            XmlOku(2);
+            cn = new SqlConnection(xmlconnectiongorev);
             kontrolgorev++;
+            timer3.Interval = 1000;
+            timer3.Start();
+        }
 
+        private void timer3_Tick(object sender, EventArgs e)
+        {
+            cn.Open();
+            cmd = new SqlCommand("sp_runsp", cn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.ExecuteNonQuery();
+            if (cmd.Connection.State == ConnectionState.Open)
+            {
+                SqlCommand cmd2 = new SqlCommand("select * from SqlTask_Clients", cn);
+                SqlDataAdapter dr = new SqlDataAdapter(cmd);
+                SqlDataAdapter dr2 = new SqlDataAdapter(cmd2);
+                DataSet ds2 = new DataSet();
+                dr2.Fill(ds2, "SqlTask_Clients");
 
-
-
-
+                dataGridViewGorevY.DataSource = ds2.Tables["SqlTask_Clients"];
+                panel1.Controls.Add(dataGridViewGorevY);
+            }
+            cn.Close();
+            cmd.Cancel();
         }
     }
 }
