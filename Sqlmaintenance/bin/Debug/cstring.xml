@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<configuration>
+  <appSettings>
+    <clear />
+    <add key="ConnectionString" value="Data Source=DESKTOP-SIMI68N;Initial Catalog=sample;Persist Security Info=True;User ID=sa;Password=bedir123456;" />
+	<add key="ConnectionString2" value="Data Source=DESKTOP-SIMI68N;Initial Catalog=SqlTask;Persist Security Info=True;User ID=sa;Password=bedir123456;" />
+  </appSettings>
+ </configuration>
+
+ 
